@@ -1,5 +1,7 @@
 package fpinscala.gettingstarted
 
+import java.security.KeyStore.TrustedCertificateEntry
+
 // A comment!
 /* Another comment */
 /** A documentation comment */
@@ -36,7 +38,20 @@ object MyModule {
 
   // Exercise 1: Write a function to compute the nth fibonacci number
 
-  def fib(n: Int): Int = ???
+  def fib2(n: Int): Int = {
+    if(n == 1 || n == 2) 1
+    else fib2(n-1)+fib2(n-2)
+  }
+
+  def fib(n: Int): Int = {
+    @annotation.tailrec
+    def go(goal: Int, curr_ind: Int, a: Int, b:Int): Int = {
+      if (goal == 0 || goal == 1) goal
+      else if (curr_ind == goal) a+b
+      else go(goal, curr_ind+1, b, a+b)
+    }
+    go(n,2,0,1)
+  }
 
   // This definition and `formatAbs` are very similar..
   private def formatFactorial(n: Int) = {
@@ -140,7 +155,15 @@ object PolymorphicFunctions {
 
   // Exercise 2: Implement a polymorphic function to check whether
   // an `Array[A]` is sorted
-  def isSorted[A](as: Array[A], gt: (A,A) => Boolean): Boolean = ???
+  def isSorted[A](as: Array[A], gt: (A,A) => Boolean): Boolean = {
+    @annotation.tailrec
+    def go(n: Int): Boolean ={
+      if(n >= as.length) true
+      else if(gt(as(n-1),as(n))) false
+      else go(n+1)
+    }
+    go(1)
+  }
 
   // Polymorphic functions are often so constrained by their type
   // that they only have one implementation! Here's an example:
@@ -153,13 +176,14 @@ object PolymorphicFunctions {
   // Note that `=>` associates to the right, so we could
   // write the return type as `A => B => C`
   def curry[A,B,C](f: (A, B) => C): A => (B => C) =
-    ???
+    ((a:A) => ((b:B) => f(a,b)))
+
 
   // NB: The `Function2` trait has a `curried` method already
 
   // Exercise 4: Implement `uncurry`
   def uncurry[A,B,C](f: A => B => C): (A, B) => C =
-    ???
+    (a,b) => f(a)(b)
 
   /*
   NB: There is a method on the `Function` object in the standard library,
@@ -174,5 +198,5 @@ object PolymorphicFunctions {
   // Exercise 5: Implement `compose`
 
   def compose[A,B,C](f: B => C, g: A => B): A => C =
-    ???
+   (a:A) => f(g(a))
 }
